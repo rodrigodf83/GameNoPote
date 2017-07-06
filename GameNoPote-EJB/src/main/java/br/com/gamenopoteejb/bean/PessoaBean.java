@@ -18,8 +18,11 @@ import br.com.gamenopoteejb.modelo.Pessoa;
 import br.com.gamenopoteejb.service.CidadeService;
 import br.com.gamenopoteejb.service.EstadoService;
 import br.com.gamenopoteejb.service.PessoaService;
+import br.com.gamenopoteejb.util.ConversorDeCaracteres;
 import br.com.gamenopoteejb.util.Messages;
 import br.com.gamenopoteejb.util.ValidadorDeEmail;
+import br.com.gamenopoteejb.util.ValidadorDeEndereco;
+import br.com.gamenopoteejb.util.ValidadorDePessoa;
 
 @ManagedBean
 @ViewScoped
@@ -83,9 +86,9 @@ public class PessoaBean implements Serializable {
 	public void salva() {
 		try {
 			// validaCpf(getPessoa().getCpf());
-			converter(getPessoa(), getEndereco());
+			ConversorDeCaracteres.converter(getPessoa(), getEndereco());
 			setaEndereco(getEndereco());
-			if (isPessoaValida(getPessoa())) {
+			if (ValidadorDePessoa.isPessoaValida(getPessoa())) {
 				
 				getPessoaService().adiciona(getPessoa());
 
@@ -109,8 +112,8 @@ public class PessoaBean implements Serializable {
 	 * 
 	 * @author rodrigo.pereira
 	 */
-	public void setaEndereco(Endereco endereco) {
-		if (isEnderecoValido(endereco)) {
+	private void setaEndereco(Endereco endereco) {
+		if (ValidadorDeEndereco.isEnderecoValido(endereco)) {
 			getPessoa().setEndereco(getEndereco());
 		} else {
 			Messages.addErrorMessages(":msg", "Todos os campos do Endereço com exceção do Complemento são obrigatórios!");
@@ -122,7 +125,7 @@ public class PessoaBean implements Serializable {
 	 * 
 	 * @author rodrigo.pereira
 	 */
-	public void novo() {
+	private void novo() {
 		setPessoa(new Pessoa());
 		setEstado(new Estado());
 		setEndereco(new Endereco());
@@ -144,21 +147,6 @@ public class PessoaBean implements Serializable {
 		}
 	}
 
-	/**
-	 * Método responsável por retirar caracteres especiais de atributos
-	 * 
-	 * @param pessoa
-	 * @param endereco
-	 */
-	public void converter(Pessoa pessoa, Endereco endereco) {
-		getPessoa().setCpf(pessoa.getCpf().replaceAll("\\.", "").replaceAll("\\-", ""));
-		getPessoa().setCelular(pessoa.getCelular().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "")
-				.replaceAll(" ", ""));
-		getPessoa().setTelefone(pessoa.getTelefone().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "")
-				.replaceAll(" ", ""));
-		getEndereco().setCep(endereco.getCep().replaceAll("\\-", "").replaceAll("\\.", ""));
-	}
-
 	public void validaCpf(String cpf) {
 		CPFValidator validator = new CPFValidator();
 		try {
@@ -167,50 +155,6 @@ public class PessoaBean implements Serializable {
 			e.printStackTrace();
 			Messages.addErrorMessages(":msg", "O CPF informado é Iválido!");
 		}
-	}
-	
-	/**
-	 * Método responsável por validar os dados informados pelo usuário para a pessoa.
-	 * @param pessoa
-	 * @return
-	 */
-	public Boolean isPessoaValida(Pessoa pessoa) {
-
-		if (pessoa.getNome() == null || pessoa.getNome().equals("")) {
-			return false;
-		} else if (pessoa.getEmail() == null || pessoa.getEmail().equals("")) {
-			return false;
-		} else if (pessoa.getDataNascimento() == null || pessoa.getDataNascimento().equals("")) {
-			return false;
-		} else if (!ValidadorDeEmail.isEmailValido(pessoa.getEmail())) {
-			Messages.addErrorMessages(":msg", "O email é inválido!");
-			return false;
-		} else if (pessoa.getEndereco() == null) {
-			return false;
-		}
-
-		return true;
-	}
-	
-	/**
-	 * Método resoponsável por validar os dados informados pelo usuário para o endereço da pessoa.
-	 * @param endereco
-	 * @return
-	 */
-	public Boolean isEnderecoValido(Endereco endereco) {
-
-		if (endereco.getLogradouro() == null || endereco.getLogradouro().equals("")) {
-			return false;
-		} else if (endereco.getNumero() == null || endereco.getNumero().equals("")) {
-			return false;
-		} else if (endereco.getBairro() == null || endereco.getBairro().equals("")) {
-			return false;
-		} else if (endereco.getCidade() == null || endereco.getCidade().equals("")) {
-			return false;
-		} else if (endereco.getCep() == null || endereco.getCep().equals("")) {
-			return false;
-		}
-		return true;
 	}
 
 	/*
