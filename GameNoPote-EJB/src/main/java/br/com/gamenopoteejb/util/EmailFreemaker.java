@@ -12,7 +12,7 @@ public class EmailFreemaker {
 		
 		email.setHostName("smtp.gmail.com");
 		email.setSmtpPort(465);
-		email.setAuthentication("rodrigo.gringodf@gmail.com", "ayrtonsenna94");
+		email.setAuthentication("rodrigo.testef@gmail.com", "123456");
 		email.setFrom(remetente);
 		email.setSubject(assunto);
 		email.setMsg("Teste de email");
